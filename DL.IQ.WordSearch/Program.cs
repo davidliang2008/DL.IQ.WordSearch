@@ -45,12 +45,12 @@ namespace DL.IQ.WordSearch
             int columnCount = data.GetLength(1);
 
             List<string> result = new List<string>();
-            bool[,] visited = new bool[rowCount, columnCount];
 
             for (int i = 0; i < rowCount; i++)
             {
                 for (int j = 0; j < columnCount; j++)
                 {
+                    bool[,] visited = new bool[rowCount, columnCount];
                     result.AddRange(SearchAround(data, hintList, visited, i, j, ""));
                 }
             }
@@ -61,24 +61,30 @@ namespace DL.IQ.WordSearch
             Console.ReadKey();
         }
 
-        private static IList<string> SearchAround(char[,] data, IEnumerable<string> hintList, bool[,] visited,
+        private static List<string> SearchAround(char[,] data, IEnumerable<string> hintList, bool[,] visited,
             int rowIndex, int colIndex, string prefix)
         {
-            int rowCount = data.GetLength(0);
-            int columnCount = data.GetLength(1);
-
             List<string> result = new List<string>();
-
-            if (!IsOKToSearch(data, rowIndex, colIndex, visited))
+            if (!hintList.Any() || !IsOKToSearch(data, rowIndex, colIndex, visited))
             {
                 return result;
             }
 
+            int rowCount = data.GetLength(0);
+            int columnCount = data.GetLength(1);
             visited[rowIndex, colIndex] = true;
             prefix += data[rowIndex, colIndex];
+
             if (hintList.Contains(prefix))
             {
                 result.Add(prefix);
+            }
+            else
+            {
+                // Try to generate a new hint list with the words starting with the prefix
+                hintList = hintList
+                    .Where(x => x.StartsWith(prefix))
+                    .ToList();
             }
 
             // Right
